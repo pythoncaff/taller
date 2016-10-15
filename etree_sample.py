@@ -13,3 +13,8 @@ xml = etree.XML(response.content)
 ns = {'a': 'http://www.loc.gov/MARC21/slim'}
 search = xml.xpath('//a:datafield[@tag="856"]', namespaces=ns)
 print(len(search))
+
+urls = xml.xpath('//a:datafield[@tag="856"]/a:subfield[@code="u"]/text()', namespaces=ns)
+
+for i in urls:
+    print(i)
