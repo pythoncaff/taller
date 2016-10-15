@@ -12,3 +12,5 @@
 ## Pad taller
 
 * https://pad.codigosur.org/taller-2409
+* y un grupo de trabajo en telegram
+
