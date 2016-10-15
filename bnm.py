@@ -17,7 +17,7 @@
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
-import pdb
+
 def unmarcxml(registro_inicial, limite, url_base = 'http://www.bnm.me.gov.ar/catalogo/Record/'):
     import requests
     import os
@@ -38,7 +38,6 @@ def unmarcxml(registro_inicial, limite, url_base = 'http://www.bnm.me.gov.ar/cat
         registro_bnm = requests.get(url_final)
         status = registro_bnm.status_code
         print(status, end=' ')
-        pdb.set_trace()
         if status == requests.codes.ok:
             if FindAttribute(registro_bnm.text, tag_name, attribute_name, attribute_value):
                 with open('%09d.xml' % registro_inicial, 'xb') as f:
