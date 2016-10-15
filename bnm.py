@@ -17,9 +17,10 @@
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
-
+import pdb
 def unmarcxml(registro_inicial, limite, url_base = 'http://www.bnm.me.gov.ar/catalogo/Record/'):
     import requests
+    import os
 
     clave_xml           = '/Export?style=MARCXML'
     lista_registros_bnm = []
@@ -27,18 +28,27 @@ def unmarcxml(registro_inicial, limite, url_base = 'http://www.bnm.me.gov.ar/cat
     attribute_name      = 'tag'
     attribute_value     = '856'
 
+    directory = url_base.split('/')[2]
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
     while registro_inicial <= limite:
         url_final    = '%s%09d%s' % (url_base, registro_inicial, clave_xml)
         print('descargando ' + url_final, end=' ')
         registro_bnm = requests.get(url_final)
-        print(registro_bnm.status_code, end=' ')
-        if FindAttribute(registro_bnm.text, tag_name, attribute_name, attribute_value):
-            with open('%09d.xml' % registro_inicial, 'xb') as f:
-                f.write(registro_bnm.content)
-            lista_registros_bnm.append(registro_bnm)
-            print('Guardado')
+        status = registro_bnm.status_code
+        print(status, end=' ')
+        pdb.set_trace()
+        if status == requests.codes.ok:
+            if FindAttribute(registro_bnm.text, tag_name, attribute_name, attribute_value):
+                with open('%09d.xml' % registro_inicial, 'xb') as f:
+                    f.write(registro_bnm.content)
+                lista_registros_bnm.append(registro_bnm)
+                print('Guardado')
+            else:
+                print('Descartado')
         else:
-            print('Descartado')
+            print()
         registro_inicial += 1
 
     return lista_registros_bnm
