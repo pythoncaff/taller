@@ -34,40 +34,63 @@ def unmarcxml(registro_inicial,
     tag_name = 'datafield'
     attribute_name = 'tag'
     attribute_value = '856'
+    registro_actual = registro_inicial
 
     directory = 'xml/' + url_base.split('/')[2]
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-    db_file = 'registro.db'
+    db_file = 'registro.sqlite'
     db_connection = sqlite3.connect(directory + "/" + db_file)
     db_cursor = db_connection.cursor()
+    # PRIMARY KEY es un valor que es unico en la base de datos
     db_cursor.execute(''' CREATE TABLE IF NOT EXISTS records
-                          (id int,
-                           server_response bool,
-                           reg_exists bool,
-                           reg_saved bool )''')
+                          (id INTEGER PRIMARY KEY,
+                           server_response BOOLEAN NOT NULL,
+                           reg_exists BOOLEAN NOT NULL,
+                           reg_saved BOOLEAN NOT NULL )''')
 
-    while registro_inicial <= limite:
-        url_final = '%s%09d%s' % (url_base, registro_inicial, clave_xml)
+    while registro_actual <= limite:
+        url_final = '%s%09d%s' % (url_base, registro_actual, clave_xml)
         print('descargando ' + url_final, end=' ')
         registro_bnm = requests.get(url_final)
         status = registro_bnm.status_code
         print(status, end=' ')
+        # Asumimos que todos los estados son false
+        server_response = 0
+        reg_exists = 0
+        reg_saved = 0
+        
         if status == requests.codes.ok:
             # ejecutar si código de respuesta OK
-            if FindAttribute(registro_bnm.text,
-                             tag_name,
-                             attribute_name,
-                             attribute_value):
-                with open('%s/%09d.xml' % (directory, registro_inicial),
+            server_response = 1
+            find_attribute_return = FindAttribute(registro_bnm.text,
+                                                  tag_name,
+                                                  attribute_name,
+                                                  attribute_value)
+            if find_attribute_return == "Guardo":
+                reg_exists = 1
+                reg_saved = 1
+                with open('%s/%09d.xml' % (directory, registro_actual),
                           'xb') as f:
                     f.write(registro_bnm.content)
                 lista_registros_bnm.append(registro_bnm)
                 print('Guardado')
+            elif find_attribute_return == "Descarto":
+                reg_exists = 1
+
         else:
             print()
-        registro_inicial += 1
+
+        db_insert = (registro_actual, server_response, reg_exists, reg_saved)
+        db_cursor.execute('INSERT INTO records VALUES (?, ?, ?, ?)',
+                          db_insert)
+
+        registro_actual += 1
+
+        db_connection.commit()
+
+    db_connection.close()
 
     return lista_registros_bnm
 
@@ -80,11 +103,13 @@ def FindAttribute(document, tag_name, attribute_name, attribute_value):
         document = xml.dom.minidom.parseString(document)
         for tag in document.getElementsByTagName(tag_name):
             if tag.getAttribute(attribute_name) == attribute_value:
-                return True
+                return "Guardo"
         # imprime descartado si condición no se cumple en ninguna iteración:
         print('Descartado')
+        return "Descarto"
     except xml.parsers.expat.ExpatError:
         print('Inexistente')
+        return "Error"
 
 
 def main(args):
