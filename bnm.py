@@ -20,6 +20,7 @@
 
 
 import pdb
+import sqlite3
 
 
 def unmarcxml(registro_inicial,
@@ -37,6 +38,15 @@ def unmarcxml(registro_inicial,
     directory = 'xml/' + url_base.split('/')[2]
     if not os.path.exists(directory):
         os.makedirs(directory)
+
+    db_file = 'registro.db'
+    db_connection = sqlite3.connect(directory + "/" + db_file)
+    db_cursor = db_connection.cursor()
+    db_cursor.execute(''' CREATE TABLE IF NOT EXISTS records
+                          (id int,
+                           server_response bool,
+                           reg_exists bool
+                           reg_saved bool )''')
 
     while registro_inicial <= limite:
         url_final = '%s%09d%s' % (url_base, registro_inicial, clave_xml)
