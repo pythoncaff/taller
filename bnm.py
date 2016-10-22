@@ -17,6 +17,7 @@
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
+import pdb
 
 def unmarcxml(registro_inicial, limite, url_base = 'http://www.bnm.me.gov.ar/catalogo/Record/'):
     import requests
@@ -45,9 +46,6 @@ def unmarcxml(registro_inicial, limite, url_base = 'http://www.bnm.me.gov.ar/cat
                     f.write(registro_bnm.content)
                 lista_registros_bnm.append(registro_bnm)
                 print('Guardado')
-            else:
-            # ejecutar si código de respuesta no OK
-                print('Descartado')
         else:
             print()
         registro_inicial += 1
@@ -55,12 +53,18 @@ def unmarcxml(registro_inicial, limite, url_base = 'http://www.bnm.me.gov.ar/cat
     return lista_registros_bnm
 
 def FindAttribute(document, tag_name, attribute_name, attribute_value):
+    import xml
     from xml.dom.minidom import parseString
-    document = parseString(document)
-    for tag in document.getElementsByTagName(tag_name):
-        if tag.getAttribute(attribute_name) == attribute_value:
-            return True
-    return False
+    #pdb.set_trace()
+    try:
+        document = xml.dom.minidom.parseString(document)
+        for tag in document.getElementsByTagName(tag_name):
+            if tag.getAttribute(attribute_name) == attribute_value:
+                return True
+        # imprime descartado si condición no se cumple en ninguna iteración:
+        print('Descartado')
+    except xml.parsers.expat.ExpatError:
+        print('Inexistente')
 
 def main(args):
     if len(args) == 4:
