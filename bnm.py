@@ -45,7 +45,7 @@ def unmarcxml(registro_inicial,
     db_cursor.execute(''' CREATE TABLE IF NOT EXISTS records
                           (id int,
                            server_response bool,
-                           reg_exists bool
+                           reg_exists bool,
                            reg_saved bool )''')
 
     while registro_inicial <= limite:
