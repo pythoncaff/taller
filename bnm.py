@@ -17,32 +17,41 @@
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
+
+
 import pdb
 
-def unmarcxml(registro_inicial, limite, url_base = 'http://www.bnm.me.gov.ar/catalogo/Record/'):
+
+def unmarcxml(registro_inicial,
+              limite,
+              url_base='http://www.bnm.me.gov.ar/catalogo/Record/'):
     import requests
     import os
 
-    clave_xml           = '/Export?style=MARCXML'
+    clave_xml = '/Export?style=MARCXML'
     lista_registros_bnm = []
-    tag_name            = 'datafield'
-    attribute_name      = 'tag'
-    attribute_value     = '856'
+    tag_name = 'datafield'
+    attribute_name = 'tag'
+    attribute_value = '856'
 
     directory = 'xml/' + url_base.split('/')[2]
     if not os.path.exists(directory):
         os.makedirs(directory)
 
     while registro_inicial <= limite:
-        url_final    = '%s%09d%s' % (url_base, registro_inicial, clave_xml)
+        url_final = '%s%09d%s' % (url_base, registro_inicial, clave_xml)
         print('descargando ' + url_final, end=' ')
         registro_bnm = requests.get(url_final)
         status = registro_bnm.status_code
         print(status, end=' ')
         if status == requests.codes.ok:
             # ejecutar si código de respuesta OK
-            if FindAttribute(registro_bnm.text, tag_name, attribute_name, attribute_value):
-                with open('%s/%09d.xml' % (directory, registro_inicial), 'xb') as f:
+            if FindAttribute(registro_bnm.text,
+                             tag_name,
+                             attribute_name,
+                             attribute_value):
+                with open('%s/%09d.xml' % (directory, registro_inicial),
+                          'xb') as f:
                     f.write(registro_bnm.content)
                 lista_registros_bnm.append(registro_bnm)
                 print('Guardado')
@@ -51,6 +60,7 @@ def unmarcxml(registro_inicial, limite, url_base = 'http://www.bnm.me.gov.ar/cat
         registro_inicial += 1
 
     return lista_registros_bnm
+
 
 def FindAttribute(document, tag_name, attribute_name, attribute_value):
     import xml
@@ -66,6 +76,7 @@ def FindAttribute(document, tag_name, attribute_name, attribute_value):
     except xml.parsers.expat.ExpatError:
         print('Inexistente')
 
+
 def main(args):
     if len(args) == 4:
         unmarcxml(int(args[1]), int(args[2]), args[3])
@@ -75,6 +86,7 @@ def main(args):
         print("Usage: " + args[0] + " registro_inicial(int) limite(int) [url]")
 
     return 0
+
 
 if __name__ == '__main__':
     import sys
