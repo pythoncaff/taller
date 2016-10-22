@@ -28,7 +28,7 @@ def unmarcxml(registro_inicial, limite, url_base = 'http://www.bnm.me.gov.ar/cat
     attribute_name      = 'tag'
     attribute_value     = '856'
 
-    directory = url_base.split('/')[2]
+    directory = 'xml/' + url_base.split('/')[2]
     if not os.path.exists(directory):
         os.makedirs(directory)
 
@@ -39,12 +39,14 @@ def unmarcxml(registro_inicial, limite, url_base = 'http://www.bnm.me.gov.ar/cat
         status = registro_bnm.status_code
         print(status, end=' ')
         if status == requests.codes.ok:
+            # ejecutar si código de respuesta OK
             if FindAttribute(registro_bnm.text, tag_name, attribute_name, attribute_value):
-                with open('%09d.xml' % registro_inicial, 'xb') as f:
+                with open('%s/%09d.xml' % (directory, registro_inicial), 'xb') as f:
                     f.write(registro_bnm.content)
                 lista_registros_bnm.append(registro_bnm)
                 print('Guardado')
             else:
+            # ejecutar si código de respuesta no OK
                 print('Descartado')
         else:
             print()
