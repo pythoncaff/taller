@@ -99,7 +99,7 @@ def unmarcxml(registro_inicial,
                     reg_exists = 1
                     reg_saved = 1
                     with open('%s/%09d.xml' % (directory, registro_actual),
-                              'xb') as f:
+                              'wb') as f:
                         f.write(registro_bnm.content)
                     lista_registros_bnm.append(registro_bnm)
                     print('Guardado')
