@@ -75,9 +75,8 @@ def unmarcxml(registro_inicial,
     database = RegistrosDB(db_file)
 
     while registro_actual <= limite:
-        db_response = database.get_record(registro_actual)
         url_final = '%s%09d%s' % (url_base, registro_actual, clave_xml)
-        if db_response is None:
+        if database.get_record(registro_actual) is None:
             print('descargando ' + url_final, end=' ')
             registro_bnm = requests.get(url_final)
             status = registro_bnm.status_code
