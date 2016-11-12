@@ -19,7 +19,7 @@
 #  MA 02110-1301, USA.
 
 
-import pdb
+#import pdb
 import sqlite3
 
 
@@ -53,6 +53,7 @@ class RegistrosDB():
         self.cursor.execute('INSERT INTO records VALUES (?, ?, ?, ?)',
                             db_insert)
         self.connection.commit()
+
 
 def unmarcxml(registro_inicial,
               limite,
@@ -97,7 +98,7 @@ def unmarcxml(registro_inicial,
                     reg_exists = 1
                     reg_saved = 1
                     with open('%s/%09d.xml' % (directory, registro_actual),
-                              'xb') as f:
+                              'wb') as f:
                         f.write(registro_bnm.content)
                     lista_registros_bnm.append(registro_bnm)
                     print('Guardado')
@@ -105,9 +106,12 @@ def unmarcxml(registro_inicial,
                     reg_exists = 1
             else:
                 print()
-            database.save_record(registro_actual, server_response, reg_exists, reg_saved)
+            database.save_record(registro_actual,
+                                 server_response,
+                                 reg_exists,
+                                 reg_saved)
         else:
-            print(url_final + ' ya había sido intentada; sigo a la siguiente...')
+            print(url_final + ' ya se intentó; sigo a la siguiente...')
 
         registro_actual += 1
     database.disconnect_db()
@@ -118,9 +122,9 @@ def unmarcxml(registro_inicial,
 def findAttribute(document, tag_name, attribute_name, attribute_value):
     import xml
     from xml.dom.minidom import parseString
-    #pdb.set_trace()
     try:
-        document = xml.dom.minidom.parseString(document)
+        #document = xml.dom.minidom.parseString(document)
+        document = parseString(document)
         for tag in document.getElementsByTagName(tag_name):
             if tag.getAttribute(attribute_name) == attribute_value:
                 return "Guardo"
@@ -131,6 +135,7 @@ def findAttribute(document, tag_name, attribute_name, attribute_value):
         print('Inexistente')
         return "Error"
 
+
 def main(args):
     if len(args) == 4:
         unmarcxml(int(args[1]), int(args[2]), args[3])
@@ -140,6 +145,7 @@ def main(args):
         print("Usage: " + args[0] + " registro_inicial(int) limite(int) [url]")
 
     return 0
+
 
 if __name__ == '__main__':
     import sys
