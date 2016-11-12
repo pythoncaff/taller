@@ -22,11 +22,15 @@
 import pdb
 import sqlite3
 
-class RegistrosDB(database):
+
+class RegistrosDB():
+
+    def __init__(self, database):
+        self._connect_db(database)
+
     def _connect_db(self, database):
-        self.connect = sqlite3.connect(database)
-        self.cursor = self.connect.cursor()
-        return self.cursor
+        self.connection = sqlite3.connect(database)
+        self.cursor = self.connection.cursor()
 
     def _create_table(self):
         self.cursor.execute(''' CREATE TABLE IF NOT EXISTS records
@@ -35,15 +39,18 @@ class RegistrosDB(database):
                         reg_exists BOOLEAN NOT NULL,
                         reg_saved BOOLEAN NOT NULL )''')
 
+    def disconnect_db(self):
+        self.connection.close()
+
     def get_record(self, record):
-        record = (record,)
+        record = (record,)  # creamos una tupla de un elemento
         self.cursor.execute('SELECT server_response, reg_exists, reg_saved FROM records WHERE id =?', record)
         return(self.cursor.fetchone())
 
     def save_record(self, record, server_response, reg_exists, reg_saved):
-        self.db_insert(record, server_response, reg_exists, reg_saved)
+        db_insert = (record, server_response, reg_exists, reg_saved)
         self.cursor.execute('INSERT INTO records VALUES (?, ?, ?, ?)',
-                                  self.db_insert)
+                            db_insert)
 
 def unmarcxml(registro_inicial,
               limite,
